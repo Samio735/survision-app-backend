@@ -1,8 +1,30 @@
-from django.shortcuts import render
-#import json response
-from django.http import JsonResponse
+# surveys/views.py
 
-# Create your views here.
+from rest_framework import viewsets
+from .models import Survey, Question, Response, Choice
+from .serializers import SurveySerializer, QuestionSerializer, ResponseSerializer, ChoiceSerializer
 
-def api_home(request):
-    return JsonResponse({'info': 'Django REST API', 'name': 'survey_collector_project', 'version': '1.0.0', 'author': 'Sergio Sanchez'})
+class SurveyViewSet(viewsets.ModelViewSet):
+    queryset = Survey.objects.all()
+    serializer_class = SurveySerializer
+
+
+class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        survey_id = self.kwargs['survey_id']
+        return Question.objects.filter(survey=survey_id)
+
+
+
+class ResponseViewSet(viewsets.ModelViewSet):
+    queryset = Response.objects.all()
+    serializer_class = ResponseSerializer
+
+class ChoiceViewSet(viewsets.ModelViewSet):
+    queryset = Choice.objects.all()
+    serializer_class = ChoiceSerializer
+    def get_queryset(self):
+        question_id = self.kwargs['question_id']
+        return Choice.objects.filter(question=question_id)
